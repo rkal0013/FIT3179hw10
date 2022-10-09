@@ -1,0 +1,77 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 500,
+  "height": 300,
+  "data": {
+    "url": "https://raw.githubusercontent.com/rkal0013/FIT3179/main/Meteorite_landings/meteorite_landings_prod.csv"
+  },
+  "transform": [{"calculate": "substring(datum.location)", "as": "location"}],
+  "vconcat": [
+    {
+      "projection": {"type": "equalEarth"},
+      "mark": "circle",
+      "encoding": {
+        "longitude": {"field": "longitude", "type": "quantitative"},
+        "latitude": {"field": "latitude", "type": "quantitative"},
+        "size": {"value": 2},
+        "color": {"field": "location", "type": "nominal"}
+      }
+    },
+    {
+      "mark": "line",
+      "encoding": {"x": {"field": "year", "type": "quantitative"}},
+      "layer": [
+        {
+          "encoding": {
+            "color": {
+              "field": "location",
+              "type": "nominal",
+              "scale": {
+                "domain": ["Australia", "India", "United States", "Antarctica"]
+              }
+            },
+            "y": {"field": "mass", "type": "quantitative"}
+          },
+          "layer": [
+            {"mark": "line"},
+            {
+              "transform": [{"filter": {"param": "hover", "empty": false}}],
+              "mark": "point"
+            }
+          ]
+        },
+        {
+          "transform": [
+            {"pivot": "location", "value": "mass", "groupby": ["year"]}
+          ],
+          "mark": "rule",
+          "encoding": {
+            "opacity": {
+              "condition": {"value": 0.3, "param": "hover", "empty": false},
+              "value": 0
+            },
+            "tooltip": [
+              {"field": "Australia", "type": "nominal"},
+              {"field": "India", "type": "nominal"},
+              {"field": "United States", "type": "nominal"},
+              {"field": "Antarctica", "type": "nominal"}
+            ]
+          },
+          "params": [
+            {
+              "name": "hover",
+              "select": {
+                "type": "point",
+                "fields": ["year"],
+                "nearest": true,
+                "on": "mouseover",
+                "clear": "mouseout"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "config": {}
+}
